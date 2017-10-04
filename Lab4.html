@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang = "en" class="tas-com">
+<head>
+	<meta charset="utf-8">
+	<title>D3: A First Data Join in D3</title>
+	<link href="./themes/prism.css" rel="stylesheet" />
+	<link href="./themes/tas_style.css" rel="stylesheet" />
+	<script type="text/javascript" src="./d3/d3.v4.js" charset="utf-8"></script>
+	<script src="./lib/prism.js" charset="utf-8"></script>
+</head>
+<body>
+
+	<h1>Task1</h1>
+
+	<div id="task1_question2" class = "demo">
+		<script type="text/javascript">
+
+			//Define a simple dataset
+			var dataset = [4, 11, 22, 17, 2, 25, 16];
+            var interval = 30;
+			//Create SVG element
+			svg = d3.select("#task1_question2")
+				.append("svg")
+				.style("background", "aliceblue")
+				.attr("width", 1000)
+				.attr("height", 100);
+
+			// Join the data with a circles slection and set parameters for each circle based on the data
+			svg.selectAll("rect")
+				    .data(dataset)
+				    .enter()
+					    .append("rect")
+						    .attr("x", function(d,i){return interval*i;})
+						    .attr("y", 50)
+                            .attr("width", function(d,i){return d})
+                            .attr("height", function(d,i){return d});
+		</script>
+	</div>
+
+    <div id="task1_question3" class = "demo">
+        <script type="text/javascript">
+
+            //Define a simple dataset
+            var dataset = [4, 11, 22, 17, 2, 25, 16];
+            var interval = 30;
+            //Create SVG element
+            svg = d3.select("#task1_question3")
+                .append("svg")
+                .style("background", "aliceblue")
+                .attr("width", 1000)
+                .attr("height", 100);
+
+            // Join the data with a circles slection and set parameters for each circle based on the data
+            svg.selectAll("rect")
+                    .data(dataset)
+                    .enter()
+                        .append("rect")
+                            .attr("x", function(d,i){return interval*i;})
+                            .attr("y", 50)
+                            .attr("width", function(d,i){return Math.sqrt(d)*2})
+                            .attr("height", function(d,i){return Math.sqrt(d)*2})
+                            .attr("transform",'scale(1)');
+        </script>
+    </div>
+
+    <div id="task1_question4" class = "demo">
+        <script type="text/javascript">
+
+            //Define a simple dataset
+            var dataset = [4, 11, 22, 17, 2, 25, 16];
+            var interval = 30;
+			var scale_ratio = 4
+            //Create SVG element
+            svg = d3.select("#task1_question4")
+                .append("svg")
+                .style("background", "aliceblue")
+                .attr("width", 1000)
+                .attr("height", 100);
+
+            // Join the data with a circles slection and set parameters for each circle based on the data
+            svg.selectAll("rect")
+                    .data(dataset)
+                    .enter()
+                        .append("rect")
+                            .attr("x", function(d,i){return interval*i;})
+                            .attr("y", 50)
+                            .attr("width", function(d,i){return Math.sqrt(d)*scale_ratio})
+                            .attr("height", function(d,i){return Math.sqrt(d)*scale_ratio})
+                            .attr("transform",'scale(1)')
+                            .attr("fill", function(d,i){
+                                if (d>15){
+                                    return "green"}
+                                else{
+                                    return "red"}
+                            });
+        </script>
+    </div>
+
+    <div id="task1_question5" class = "demo">
+        <script type="text/javascript">
+
+            //Define a simple dataset
+            var dataset = new Array(10);
+            var interval = 30;
+			var scale_ratio = 4
+
+            for(i=0; i<10; i++){
+                dataset[i] = Math.floor((Math.random()*25)+1)
+            }
+
+            //Create SVG element
+            svg = d3.select("#task1_question5")
+                .append("svg")
+                .style("background", "aliceblue")
+                .attr("width", 1000)
+                .attr("height", 100);
+
+            // Join the data with a circles slection and set parameters for each circle based on the data
+            svg.selectAll("rect")
+                    .data(dataset)
+                    .enter()
+                        .append("rect")
+                            .attr("x", function(d,i){return interval*i;})
+                            .attr("y", 50)
+                            .attr("width", function(d,i){return Math.sqrt(d)*scale_ratio})
+                            .attr("height", function(d,i){return Math.sqrt(d)*scale_ratio})
+                            .attr("transform",'scale(1)')
+                            .attr("fill", function(d,i){
+                                if (d > 15){
+                                    return "green"}
+                                else{
+                                    return "red"}
+                            });
+        </script>
+    </div>
+
+    <h1>Task2</h1>
+    <div id="task2_question1" class = "demo">
+		<script type="text/javascript">
+
+			// Define margins
+			var margin = {top: 10, right: 10, bottom: 15, left: 100};
+
+			//Width and height
+			var outer_width = 1000;
+			var outer_height = 700;
+			var svg_width = outer_width - margin.left - margin.right;
+			var svg_height = outer_height - margin.top - margin.bottom;
+			//Scale data
+			var data_unit = 1
+			//Create SVG element as a group with the margins transform applied to it
+			var svg = d3.select("#task2_question1")
+						.append("svg")
+						.style("background", "aliceblue")
+						.attr("width", svg_width+ margin.left + margin.right )
+						.attr("height", svg_height+ margin.left + margin.right )
+						.append("g")
+						.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+			// Define a fucntion to draw a simple bar chart
+			function generateVis(){
+
+				// Create a scale to scale market share values nicely for bar width
+				var xScale = d3.scaleLinear()
+				                     .domain([0, 1359368470])
+				                     .range([0, (svg_width)]);
+
+				//define the unit of yScale
+				var yUnit = 0.1
+				// Create a scale object to nicely take care of positioning bars along the vertical axis
+				var yScale = d3.scaleBand()
+	            				.domain(dataset.map(function(d) { return d.Country; }))
+								.range([0, svg_height], yUnit);
+
+				// Create an x-axis connected to the x scale
+				var xAxis = d3.axisBottom()
+								.scale(xScale);
+
+				//Define Y axis
+				var yAxis = d3.axisLeft()
+								.scale(yScale);
+
+				//calculate the quarter unit of real interval
+				var quarter_unit = svg_height/yScale.length*yUnit/4;
+
+				// Call the x-axis
+				svg.append("g")
+					.attr("class", "axis")
+					.attr("transform", "translate(0," + svg_height + ")")
+					.call(xAxis);
+
+				// Call the y axis
+				svg.append("g")
+					.attr("class", "axis")
+					.call(yAxis);
+
+				// Add rectangles
+				svg.selectAll("rect")
+				   	.data(dataset)
+				   	.enter()
+						.append("rect")
+						.attr("y", function(d, i) {
+							return yScale(d.Country)+quarter_unit;
+						})
+						.attr("x", 0)
+						.attr("height", yScale.bandwidth()/2)
+						.attr("width", function(d) {
+							return xScale(+d.Population/data_unit);
+						})
+						.attr("fill", "Blue");
+			}
+
+			// Load the file data.csv and generate a visualisation based on it
+			d3.csv("./data/Top10WorldPopulations.csv", function(error, data){
+
+				// handle any data loading errors
+				if(error){
+					console.log("Something went wrong");
+					console.log(error);
+				}else{
+					console.log("Data Loaded");
+
+					// Assign  the data object loaded to the global dataset variable
+					dataset = data;
+
+					// Generate the visualisation
+					generateVis();
+				}
+			});
+
+		</script>
+	</div>
+
+
+</body>
+</html>
