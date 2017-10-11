@@ -140,7 +140,7 @@
 
 			// Define margins
 			var margin = {top: 10, right: 10, bottom: 15, left: 100};
-
+			var dataset;
 			//Width and height
 			var outer_width = 1000;
 			var outer_height = 700;
@@ -160,20 +160,28 @@
 			// Define a fucntion to draw a simple bar chart
 			function generateVis(){
 
+				// get the max scale value
+				max_population = d3.max(dataset, function(d){console.log(d); return +d.Population;})
+				
 				// Create a scale to scale market share values nicely for bar width
 				var xScale = d3.scaleLinear()
-				                     .domain([0, 1359368470])
+				                     .domain([0, max_population])
 				                     .range([0, (svg_width)]);
+
 
 				//define the unit of yScale
 				var yUnit = 0.1
 				// Create a scale object to nicely take care of positioning bars along the vertical axis
 				var yScale = d3.scaleBand()
 	            				.domain(dataset.map(function(d) { return d.Country; }))
-								.range([0, svg_height], yUnit);
+								.range([0, svg_height], yUnit)//;
+								.paddingInner(0.05)
+								.paddingOuter(0.05);
 
 				// Create an x-axis connected to the x scale
+				// ticks ---> how many intervals in xAxis!!!
 				var xAxis = d3.axisBottom()
+								.ticks(4)  
 								.scale(xScale);
 
 				//Define Y axis
@@ -181,7 +189,7 @@
 								.scale(yScale);
 
 				//calculate the quarter unit of real interval
-				var quarter_unit = svg_height/yScale.length*yUnit/4;
+				var quarter_unit = 0//svg_height/yScale.length*yUnit/4;
 
 				// Call the x-axis
 				svg.append("g")
@@ -203,11 +211,12 @@
 							return yScale(d.Country)+quarter_unit;
 						})
 						.attr("x", 0)
-						.attr("height", yScale.bandwidth()/2)
+						.attr("height", yScale.bandwidth())
 						.attr("width", function(d) {
 							return xScale(+d.Population/data_unit);
 						})
 						.attr("fill", "Blue");
+
 			}
 
 			// Load the file data.csv and generate a visualisation based on it
@@ -222,7 +231,6 @@
 
 					// Assign  the data object loaded to the global dataset variable
 					dataset = data;
-
 					// Generate the visualisation
 					generateVis();
 				}
