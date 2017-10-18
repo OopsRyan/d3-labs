@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang = "en" class="tas-com">
+<head>
+	<meta charset="utf-8">
+	<title>D3: Moving Line Charts</title>
+	<link href="./themes/prism.css" rel="stylesheet" />
+	<link href="./themes/tas_style.css" rel="stylesheet" />
+	<script type="text/javascript" src="./d3/d3.v4.js" charset="utf-8"></script>
+	<script src="./lib/prism.js" charset="utf-8"></script>
+	<style type="text/css">
+		.axis path,
+		.axis line {
+		    fill: none;
+		    stroke: black;
+		    shape-rendering: crispEdges;
+		}
+		
+		.axis text {
+		    font-family: sans-serif;
+		    font-size: 11px;
+		}	
+	</style>
+</head>
+<body>
+
+	<h1>Line Charts With Generators</h1>
+	<h2>Demo</h2>
+	
+	<div class = "demo">
+	
+		<script type="text/javascript" id = "demo_code">
+
+			// Define margins
+			var margin = {top: 10, right: 10, bottom: 25, left: 25};
+
+			//Width and height
+			var outer_width = 500;
+			var outer_height = 500;
+			var svg_width = outer_width - margin.left - margin.right;
+			var svg_height = outer_height - margin.top - margin.bottom;
+
+			//Define a date parser
+			var formatDate = d3.timeParse("%d/%m/%y");
+
+			// The global data set object
+			var dataset;
+
+
+			// Set up the scale to be used on the x axis
+			xScale = d3.scaleTime()
+							.range([0, svg_width]);
+
+			// Set up the scale to be used on the y axis
+			yScale = d3.scaleLinear()
+							.range([svg_height, 0]);
+
+						
+			// Create an x-axis connected to the x scale
+			var xAxis = d3.axisBottom()
+						  	.scale(xScale)
+							.ticks(5);
+
+			//Define Y axis
+			var yAxis = d3.axisLeft()
+							  .scale(yScale)
+							  .ticks(5);
+										  
+
+
+			//Create SVG element as a group with the margins transform applied to it
+			var svg = d3.select("body")
+						.append("svg")
+						.attr("width", svg_width + margin.left + margin.right)
+						.attr("height", svg_height + margin.top + margin.bottom)
+						.append("g")
+						.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+			function generateVis(){
+
+				/******** PERFORM DATA JOIN ************/
+			  	// Join new data with old elements, if any.
+				var points = svg.selectAll("circle")
+									.data(dataset);
+			
+				//var up_points = points;
+
+				/******** HANDLE UPDATE SELECTION ************/
+			  	// Update the display of existing elelemnts to mathc new data
+			  	// Perform a data join and add points to the chart
+			  	points.transition()
+						.duration(500)
+						.ease(d3.easeBounce).attr("cx", function(d){
+							return xScale(d.Date);
+						})
+						.attr("cy", function(d){
+							return yScale(d.Close);
+						})
+						.attr("r", 2)
+						.style("fill", "green");
+
+				/******** HANDLE ENTER SELECTION ************/
+			  	// Create new elements in the dataset
+			  	// Perform a data join and add points to the chart
+				points.enter()
+					.append("circle")
+					.transition()
+					.duration(500)
+					.ease(d3.easeBounce)
+					.attr("cx", function(d){
+						return xScale(d.Date);
+					})
+					.attr("cy", function(d){
+						return yScale(d.Close);
+					})
+					.attr("r", 2)
+					.style("fill", "blue");
+			
+				/******** HANDLE EXIT SEL	ECTION ************/
+				// Remove elements that not longer have a matching data eleement
+				points.exit().remove();
+			}
+
+			// Load the file data.csv and generate a visualisation based on it
+			d3.csv("./data/stock_prices_1.csv", function(error, data){
+				
+				// handle any data loading errors
+				if(error){
+					console.log("Something went wrong");
+					console.log(error);
+				}else{
+					console.log("Data Loaded");
+
+					// convert each variable to numeric type and parse the date
+					data.forEach(function(d){ 
+						d['Date'] = formatDate(d['Date']);
+						d['Open'] = +d['Open']; 
+						d['High'] = +d['High']; 
+						d['Low'] = +d['Low']; 
+						d['Close'] = +d['Close']; 
+						d['Volume'] = +d['Volume']; 
+					});   		
+
+					// Assign  the data object loaded to the global dataset variable
+					dataset = data;
+
+					// Set the domains of the x and y scales using the data
+					var max_close = d3.max(dataset, function(d) { return d.Close;} );
+					var max_date = d3.max(dataset, function(d) { return d.Date;} );
+					var min_date = d3.min(dataset, function(d) { return d.Date;} );
+				
+					xScale.domain([min_date, max_date]);
+					yScale.domain([0, max_close]);
+
+					// Create the x-axis
+					svg.append("g")
+						.attr("class", "axis")
+						.attr("id", "x-axis")
+						.attr("transform", "translate(0," + svg_height + ")")
+						.call(xAxis);
+						
+					// Create the y axis
+					svg.append("g")
+						.attr("class", "axis")
+						.attr("id", "y-axis")
+						.call(yAxis)
+						.append("text")
+						.attr("transform", "rotate(-90)")
+						.attr("y", 6)
+						.attr("dy", ".71em")
+						.style("text-anchor", "end")
+						.text("Price ($)");
+
+					// Generate the visualisation
+					generateVis();
+
+					// set up an interval callback to refresh the visuaslaition every second
+					setInterval(function() {
+
+						//New values for dataset
+						for (var i = 0; i < dataset.length; i++) {				 		//Loop numValues times
+							var noise = dataset[i].Close*(Math.random() * 0.1 - 0.05);
+							dataset[i].Close = dataset[i].Close + noise;
+						}
+						
+						generateVis();
+						}, 1000);
+				}
+			});
+		</script>
+		</div>
+
+		<h2>Full Code Listing</h2>
+		<pre class = "line-numbers"><code class="language-javascript" id = "full_code_list"></code></pre>
+		<script type="text/javascript">d3.select("#full_code_list").text(d3.select("#demo_code").text())</script>
+	</div>
+</body>	 
+</html>
