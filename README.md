@@ -22,8 +22,9 @@ If we want one axis to animate, we can change its scale domain in the callback f
 
 #### what transition really means
 When joining data with elements, the invoking order of transition() is really important.
-For example, in the code below, after enter(), the elements will be created first, and its scale band value is zero, which     means its height equals to zero. Secondly, we call transition(), and assign the width and height value of elements with new values. So now, the elements are going to transition from zero to the new values, which is a rising animation.
-  
+For example, in the code below, after enter(), the elements will be created first, and then appear from the yScale value to the axis. If transition() is called immediately after enter(), the elements will show from the up left corner to the axis. Anyway, I think invoking transition after assigning the ordinates looks better.
+
+	/******** HANDLE ENTER SELECTION ************/
 	// Create new elements in the dataset
 	bars.enter()
             .append("rect")
