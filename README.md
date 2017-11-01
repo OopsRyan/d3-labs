@@ -18,6 +18,7 @@ d3 lab code
 
 
 #### Scale !!!
+when the objects on the axis are continuous values, you should use ScaleLinear()
 when the objects on the axis are bars, you should use ScaleBand()
 when the objects on the axis are time, you should use ScaleTime()
 If you use the wrong Scale function to initialize your scale, the tick will be a mass. ~~~~~~~
