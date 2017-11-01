@@ -91,7 +91,7 @@
 				// Filter the data to only include the current year
 				var filtered_datset = dataset.filter(yearFilter);
 							
-				xScale.domain(dataset.map(function(d) { return d.Company; }));
+				xScale.domain(dataset.map(function(d) { return d.GDP; }));
 
 				// Update the domain of the x scale
 				// Create an x-axis connected to the x scale
@@ -104,7 +104,7 @@
 			  	// Join new data with old elements, if any.
 			  	var bars = 	svg.selectAll("rect")
 				   .data(filtered_datset, function key(d) {
-											return d.Company;
+											return d.GDP;
 										});
 
 
@@ -114,14 +114,14 @@
 					.duration(500)
 					// .ease(d3.easeElastic)
 					.attr("x", function(d) {
-				   		return xScale(d.Company);
+				   		return xScale(d.GDP);
 				    })
 				    .attr("y", function(d) {
-				   		return yScale(+d.Share) ;
+				   		return yScale(+d.LifeExp) ;
 				    })
 				    .attr("width", xScale.bandwidth())
 				    .attr("height", function(d) {
-				   		return svg_height - yScale(+d.Share);
+				   		return svg_height - yScale(+d.LifeExp);
 				    })
 				    .style("fill", "Green");
 					   
@@ -132,10 +132,10 @@
 				   .append("rect")
 					// .ease(d3.easeElastic)
 				   .attr("x", function(d, i) {
-				   		return xScale(d.Company);
+				   		return xScale(d.GDP);
 				   })
 				   .attr("y", function(d) {
-				   		return yScale(+d.Share) ;
+				   		return yScale(+d.LifeExp) ;
 				   })
 				   .attr("width", xScale.bandwidth())
 				   .attr("height", 0)
@@ -144,7 +144,7 @@
 				   .duration(500)
 				   .attr("width", xScale.bandwidth())
 				   .attr("height", function(d) {
-				   		return svg_height - yScale(+d.Share);
+				   		return svg_height - yScale(+d.LifeExp);
 				   });
 			
 				/******** HANDLE EXIT SELECTION ************/
