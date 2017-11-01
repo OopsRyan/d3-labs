@@ -59,13 +59,12 @@
 					
 			// Create a scale to scale market share values nicely for bar heights
 			var yScale = d3.scaleLinear()
-				                     .domain([0, 50])
-				                     .range([svg_height, 0]);			
+							  .range([svg_height, 0]);			
 
 			//Define Y axis
 			var yAxis = d3.axisLeft()
 							  .scale(yScale)
-						  	  .ticks(5);
+						  	  .ticks();
 
 
 			var xScale = d3.scaleBand()
@@ -76,8 +75,7 @@
 			// Call the y axis
 			svg.append("g")
 				.attr("class", "axis")
-				.attr("id", "y-axis")
-				.call(yAxis);
+				.attr("id", "y-axis");
 					
 			// All but call the x-axis
 			svg.append("g")
@@ -91,21 +89,26 @@
 				// Filter the data to only include the current year
 				var filtered_datset = dataset.filter(yearFilter);
 							
-				xScale.domain(dataset.map(function(d) { return d.GDP; }));
+				xScale.domain([0, d3.max(dataset.map(function(d) { return +d.GDP; }))]);
+				yScale.domain([0, d3.max(dataset.map(function(d) { return +d.LifeExp; }))]);
+
+				console.log(xScale.domain(), yScale.domain());
 
 				// Update the domain of the x scale
 				// Create an x-axis connected to the x scale
 				var xAxis = d3.axisBottom()
-						 	  .scale(xScale);
+						 	  .scale(xScale)
+						 	  .ticks(7);
 
 				svg.select("#x-axis").call(xAxis);
+				svg.select("#y-axis").call(yAxis);
 
 			 	/******** PERFORM DATA JOIN ************/
 			  	// Join new data with old elements, if any.
 			  	var bars = 	svg.selectAll("rect")
-				   .data(filtered_datset, function key(d) {
-											return d.GDP;
-										});
+				   				.data(filtered_datset, function key(d) {
+									return d.GDP;
+									});
 
 
 			 	/******** HANDLE UPDATE SELECTION ************/
@@ -114,7 +117,7 @@
 					.duration(500)
 					// .ease(d3.easeElastic)
 					.attr("x", function(d) {
-				   		return xScale(d.GDP);
+				   		return xScale(+d.GDP);
 				    })
 				    .attr("y", function(d) {
 				   		return yScale(+d.LifeExp) ;
