@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang = "en" class="tas-com">
+<head>
+	<meta charset="utf-8">
+	<title>Gapminder world</title>
+	<link href="./themes/prism.css" rel="stylesheet" />
+	<link href="./themes/tas_style.css" rel="stylesheet" />
+	<script type="text/javascript" src="./d3/d3.v4.js" charset="utf-8"></script>
+	<script src="./lib/prism.js" charset="utf-8"></script>
+	<style type="text/css">
+		.axis path,
+		.axis line {
+		    fill: none;
+		    stroke: black;
+		    shape-rendering: crispEdges;
+		}
+		
+		.axis text {
+		    font-family: sans-serif;
+		    font-size: 11px;
+		}	
+	</style>
+</head>
+<body>
+<!-- 
+	<h1>Gapminder World</h1>
+	<h2>Mapping the Wealth and Health of Nations</h2>
+ -->
+	<div class = "map">
+		<!-- <h3 id = "year_header">2013</h3> -->
+		<script type="text/javascript">
+		
+			// Define margins
+			var margin = {top: 10, right: 10, bottom: 50, left: 100};
+			
+			//Width and height
+			var outer_width = 1300;
+			var outer_height =700;
+			var svg_width = outer_width - margin.left - margin.right;
+			var svg_height = outer_height - margin.top - margin.bottom;
+
+			// The year to display
+			display_year = 2013;
+			
+			// define a function that filters data by year
+			function yearFilter(value){
+				return (value.Year == display_year)
+			}
+			
+			//Create SVG element as a group with the margins transform applied to it
+			var svg = d3.select("body")
+						.append("svg")
+						.attr("width", svg_width + margin.left + margin.right)
+						.attr("height", svg_height + margin.top + margin.bottom)
+						.append("g")
+						.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+			initialize_titles()
+					
+			// Create a scale to scale market share values nicely for bar heights
+			var yScale = d3.scaleLinear()
+				                     .domain([0, 50])
+				                     .range([svg_height, 0]);			
+
+			//Define Y axis
+			var yAxis = d3.axisLeft()
+							  .scale(yScale)
+						  	  .ticks(5);
+
+
+			var xScale = d3.scaleBand()
+				.range([0, svg_width], 0.1)
+				.paddingInner(0.05)
+				.paddingOuter(0.05);
+
+			// Call the y axis
+			svg.append("g")
+				.attr("class", "axis")
+				.attr("id", "y-axis")
+				.call(yAxis);
+					
+			// All but call the x-axis
+			svg.append("g")
+				.attr("class", "axis")
+				.attr("id", "x-axis")
+				.attr("transform", "translate(0," + svg_height + ")");
+					
+			// Define a fucntion to draw a simple bar chart
+			function generateVis(){
+					
+				// Filter the data to only include the current year
+				var filtered_datset = dataset.filter(yearFilter);
+							
+				xScale.domain(dataset.map(function(d) { return d.Company; }));
+
+				// Update the domain of the x scale
+				// Create an x-axis connected to the x scale
+				var xAxis = d3.axisBottom()
+						 	  .scale(xScale);
+
+				svg.select("#x-axis").call(xAxis);
+
+			 	/******** PERFORM DATA JOIN ************/
+			  	// Join new data with old elements, if any.
+			  	var bars = 	svg.selectAll("rect")
+				   .data(filtered_datset, function key(d) {
+											return d.Company;
+										});
+
+
+			 	/******** HANDLE UPDATE SELECTION ************/
+			  	// Update the display of existing elelemnts to mathc new data
+			  	bars.transition()
+					.duration(500)
+					// .ease(d3.easeElastic)
+					.attr("x", function(d) {
+				   		return xScale(d.Company);
+				    })
+				    .attr("y", function(d) {
+				   		return yScale(+d.Share) ;
+				    })
+				    .attr("width", xScale.bandwidth())
+				    .attr("height", function(d) {
+				   		return svg_height - yScale(+d.Share);
+				    })
+				    .style("fill", "Green");
+					   
+			
+				/******** HANDLE ENTER SELECTION ************/
+			  	// Create new elements in the dataset
+			  	bars.enter()
+				   .append("rect")
+					// .ease(d3.easeElastic)
+				   .attr("x", function(d, i) {
+				   		return xScale(d.Company);
+				   })
+				   .attr("y", function(d) {
+				   		return yScale(+d.Share) ;
+				   })
+				   .attr("width", xScale.bandwidth())
+				   .attr("height", 0)
+				   .style("fill", "Blue")
+				   .transition()
+				   .duration(500)
+				   .attr("width", xScale.bandwidth())
+				   .attr("height", function(d) {
+				   		return svg_height - yScale(+d.Share);
+				   });
+			
+				/******** HANDLE EXIT SELECTION ************/
+				// Remove bars that not longer have a matching data eleement
+				bars.exit()
+					.transition()
+					.duration(500)
+					.ease(d3.easeBounce)
+					.style("fill", "red")
+				   	.attr("y", svg_height)
+				    .attr("height", 0)
+					.remove();
+			  		
+				// Set the year label
+				d3.select("#year_header").text(display_year)
+  
+			}
+
+			// Load the file data.csv and generate a visualisation based on it
+			d3.csv("./data/Gapminder_Small.csv", function(error, data){
+				
+				// handle any data loading errors
+				if(error){
+					console.log("Something went wrong");
+					console.log(error);
+				}else{
+					console.log("Data Loaded");
+					
+					// Assign  the data object loaded to the global dataset variable
+					dataset = data;
+				
+
+					// Generate the visualisation
+					generateVis();
+
+					// Iterate through our avilable years.
+					setInterval(function() {
+						display_year = display_year + 1;
+						if(display_year > 2015){
+							display_year = 2013;
+						}
+					  	generateVis();
+					}, 1000);
+				}
+			});
+
+			function initialize_titles(){
+
+				var title_1 = svg.append("text")
+							   .attr("x", 30)
+							   .attr("y", 30)
+							   .attr("font-family", "serif")
+							   .attr("font-size", "30px")
+							   .attr("font-weight", "bold")
+							   .text("Gapminder World")
+
+
+				var title_2 = svg.append("text")
+								   .attr("x", 30)
+								   .attr("y", 50)
+								   .attr("font-family", "serif")
+								   .attr("font-size", "15px")
+								   .text("Mapping the Wealth and Health of Nations")
+
+				var title_year = svg.append("text")
+								   .attr("x", 280)
+								   .attr("y", 30)
+								   .attr("font-family", "serif")
+								   .attr("font-size", "30px")
+								   .attr("font-weight", "bold")
+								   .attr("id", "year_header")
+
+				var title_x_axis = svg.append("text")
+								   .attr("x", 200)
+								   .attr("y", 680)
+								   .attr("font-family", "serif")
+								   .attr("font-size", "20px")
+								   .style("font-weight", "bold")
+								   .text("INCOME PER PERSON")
+
+				var title_x_axis_unit_1 = svg.append("text")
+								   .attr("x", 420)
+								   .attr("y", 680)
+								   .attr("font-family", "serif")
+								   .attr("font-size", "15px")
+								   .text("in US Dollars")
+
+				var title_x_axis_unit_1 = svg.append("text")
+								   .attr("x", 510)
+								   .attr("y", 680)
+								   .attr("font-family", "serif")
+								   .attr("font-size", "15px")
+								   .attr("font-style", "italic")
+								   .text("(GDP/capita, PPP$ in ation adjusted, log scale)")
+
+				var title_y_axis = svg.append("text")
+								   .attr("x", -50)
+								   .attr("y", 450)
+								   .style("font-family", "serif")
+								   .style("font-size", "20px")
+								   .style("font-weight", "bold")
+								   .attr("transform","rotate(-90 -50,450)")
+								   .text("LIFE EXPECTANCY")
+
+				var title_y_axis_unit = svg.append("text")
+								   .attr("x", -50)
+								   .attr("y", 255)
+								   .style("font-family", "serif")
+								   .style("font-size", "20px")
+								   // .style("font-weight", "")
+								   .attr("transform","rotate(-90 -50,255)")
+								   .text("in years")
+								   
+
+			}
+		</script>
+	</div>
+</body>	 
+</html>
