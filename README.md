@@ -17,6 +17,11 @@ d3 lab code
 ![Lab 5](https://github.com/OopsRyan/d3-labs/blob/master/themes/lab5_scale_transition.gif?raw=true)
 
 
+#### Scale !!!
+when the objects on the axis are bars, you should use ScaleBand()
+when the objects on the axis are time, you should use ScaleTime()
+If you use the wrong Scale function to initialize your scale, the tick will be a mass. ~~~~~~~
+
 #### change axis values dynamically
 If we want one axis to animate, we can change its scale domain in the callback function.
 
