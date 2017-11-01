@@ -57,13 +57,13 @@
 						
 			// Create an x-axis connected to the x scale
 			var xAxis = d3.axisBottom()
-						  	.scale(xScale)
-							.ticks(5);
+					  	.scale(xScale)
+						.ticks(5);
 
 			//Define Y axis
 			var yAxis = d3.axisLeft()
-							  .scale(yScale)
-							  .ticks(5);
+					    .scale(yScale)
+					    .ticks(5);
 										  
 
 
@@ -81,7 +81,7 @@
 				/******** PERFORM DATA JOIN ************/
 			  	// Join new data with old elements, if any.
 				var points = svg.selectAll("circle")
-									.data(dataset);
+								.data(dataset);
 			
 				//var up_points = points;
 

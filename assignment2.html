@@ -40,7 +40,9 @@
 			var svg_height = outer_height - margin.top - margin.bottom;
 
 			// The year to display
-			display_year = 2013;
+			min_year = null;
+			max_year = null;
+			display_year = null;
 			
 			// define a function that filters data by year
 			function yearFilter(value){
@@ -72,6 +74,11 @@
 					// Assign  the data object loaded to the global dataset variable
 					dataset = data;
 
+					min_year = d3.min(dataset.map(function (d){return +d.Year;}));
+					max_year = d3.max(dataset.map(function (d){return +d.Year;}));
+					display_year = min_year;
+					console.log(min_year, max_year);
+
 					initialize_axis();
 
 					// Generate the visualisation
@@ -80,8 +87,8 @@
 					// Iterate through our avilable years.
 					setInterval(function() {
 						display_year = display_year + 1;
-						if(display_year > 2015){
-							display_year = 2013;
+						if(display_year > max_year){
+							display_year = min_year;
 						}
 					  	generateVis();
 					}, 1000);
@@ -129,14 +136,9 @@
 				   .attr("y", function(d) {
 				   		return yScale(+d.LifeExp) ;
 				   })
-				   .attr("width", )
-				   .attr("height", 0)
 				   .style("fill", "Blue")
 				   .transition()
-				   .duration(500)
-				   .attr("height", function(d) {
-				   		return svg_height - yScale(+d.LifeExp);
-				   });
+				   .duration(500);
 			
 				/******** HANDLE EXIT SELECTION ************/
 				// Remove bars that not longer have a matching data eleement
@@ -233,7 +235,7 @@
 								   .attr("font-family", "serif")
 								   .attr("font-size", "30px")
 								   .attr("font-weight", "bold")
-								   .attr("id", "year_header")
+								   .attr("id", "year_header");
 
 				var title_x_axis = svg.append("text")
 								   .attr("x", 200)
